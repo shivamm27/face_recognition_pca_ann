@@ -49,4 +49,4 @@ Thus, the combination of PCA and ANN proves to be a robust approach for building
 
 ---
 
-👉 Would you like me to also prepare this in **formal PDF format (Aim + Objectives + Conclusion on one page)** so you can directly include it in your project report?
+
