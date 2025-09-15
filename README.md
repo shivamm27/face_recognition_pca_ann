@@ -1,4 +1,3 @@
-Of course 👍 Let’s write the **Aim, Objectives, and Conclusion** for your **Face Recognition using PCA + ANN** project. These are standard points you can include in your report, viva, or presentation.
 
 ---
 
