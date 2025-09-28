@@ -1,4 +1,4 @@
- streamlit
+ streamlit.io
 opencv-python
 face-recognition
 numpy
