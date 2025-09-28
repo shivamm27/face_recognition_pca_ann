@@ -1,5 +1,9 @@
-tensorflow
-scikit-learn
+ streamlit
 opencv-python
-matplotlib
+face-recognition
 numpy
+pillow
+scikit-learn   
+tensorflow     
+joblib
+

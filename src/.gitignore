@@ -1,0 +1,39 @@
+# Ignore Python cache and virtual environments
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Ignore environment folders
+
+.venv/
+venv/
+env/
+
+# Ignore Jupyter checkpoints
+
+.ipynb_checkpoints/
+
+# Ignore system files
+
+.DS_Store
+Thumbs.db
+
+# Ignore datasets (if large)
+
+data/
+*.zip
+*.tar.gz
+
+# Ignore model weights if very large (use Git LFS if needed)
+
+*.h5
+*.pkl
+*.joblib
+
+# Ignore IDE settings
+
+.vscode/
+.idea/
