@@ -13,4 +13,4 @@ if uploaded:
     image = Image.open(uploaded).convert("RGB")
     img_arr = np.array(image)
     # run your detection/recognition pipeline here, draw boxes / labels
-    st.image(image, caption="Input image", use_column_width=True)
+    st.image(image, caption="Input image", use_container_width=True)
