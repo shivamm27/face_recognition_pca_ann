@@ -1,25 +1,63 @@
+
 # app.py
 import streamlit as st
 import numpy as np
 from PIL import Image
-import joblib
 import tensorflow as tf
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import LabelEncoder
+import os
 
 # -------------------------
-# Load PCA + ANN + Label Encoder
+# Load ANN model
 # -------------------------
 @st.cache_resource
-def load_models():
-    try:
-        pca = joblib.load("results/pca_transform.pkl")   # PCA transformer
-        model = tf.keras.models.load_model("results/face_ann_model.h5")  # ANN model
-        label_encoder = joblib.load("results/label_encoder.pkl")  # Label encoder
-        return pca, model, label_encoder
-    except Exception as e:
-        st.error(f"⚠️ Error loading models: {e}")
-        return None, None, None
+def load_model():
+    model = tf.keras.models.load_model("results/face_ann_model.h5")
+    return model
 
-pca, ann_model, label_encoder = load_models()
+ann_model = load_model()
+
+# -------------------------
+# Load training data again to fit PCA + LabelEncoder
+# -------------------------
+@st.cache_resource
+def prepare_pca_and_labels():
+    # ⚠️ You MUST have your training dataset available in the repo
+    # Example: data/train/<person_name>/*.jpg
+    import cv2
+    import glob
+
+    data_path = "data/train"
+    X, y = [], []
+
+    # Iterate over each person folder
+    for person_folder in os.listdir(data_path):
+        person_path = os.path.join(data_path, person_folder)
+        if not os.path.isdir(person_path):
+            continue
+        for img_path in glob.glob(os.path.join(person_path, "*.jpg")):
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            if img is None:
+                continue
+            img = cv2.resize(img, (100, 100))
+            X.append(img.flatten())
+            y.append(person_folder)
+
+    X = np.array(X)
+    y = np.array(y)
+
+    # PCA (keep 50 components like your project)
+    pca = PCA(n_components=50)
+    X_pca = pca.fit_transform(X)
+
+    # Label Encoder
+    le = LabelEncoder()
+    y_enc = le.fit_transform(y)
+
+    return pca, le
+
+pca, label_encoder = prepare_pca_and_labels()
 
 # -------------------------
 # Streamlit UI
@@ -30,54 +68,8 @@ st.write("Upload an image to predict the person using the trained PCA + ANN mode
 
 uploaded_file = st.file_uploader("Upload a face image", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None and pca and ann_model:
-    # Convert uploaded image
-    image = Image.open(uploaded_file).convert("L").resize((100, 100))  # grayscale 100x100
-    img_array = np.array(image).flatten().reshape(1, -1)
-
-    # Apply PCA
-    try:
-        features = pca.transform(img_array)
-    except Exception as e:
-        st.error(f"⚠️ PCA transform failed: {e}")
-        st.stop()
-
-    # ANN Prediction
-    try:
-        prediction = ann_model.predict(features)
-        pred_class = np.argmax(prediction, axis=1)[0]
-        pred_name = label_encoder.inverse_transform([pred_class])[0]
-    except Exception as e:
-        st.error(f"⚠️ Prediction failed: {e}")
-        st.stop()
-
-
-# save_models.py
-import joblib
-import tensorflow as tf
-
-# Assuming you already have these objects after training:
-# pca (the fitted PCA transformer)
-# label_encoder (the fitted LabelEncoder)
-# ann_model (the trained ANN model)
-
-# Save PCA transformer
-joblib.dump(pca, "results/pca_transform.pkl")
-print("✅ Saved PCA transformer at results/pca_transform.pkl")
-
-# Save Label Encoder
-joblib.dump(label_encoder, "results/label_encoder.pkl")
-print("✅ Saved Label Encoder at results/label_encoder.pkl")
-
-# Save ANN model
-ann_model.save("results/face_ann_model.h5")
-print("✅ Saved ANN model at results/face_ann_model.h5")
-
-
-    # Display result
-    st.image(image, caption=f"Prediction: {pred_name}", use_column_width=True)
-    st.success(f"✅ Predicted Person: {pred_name}")
-
-elif uploaded_file is not None:
-    st.warning("⚠️ Models not loaded. Please check your 'results/' folder for PCA, ANN, and label encoder files.")
+if uploaded_file is not None:
+    # Preprocess uploaded image
+    image = Image.open(uploaded_file).convert("L").resize((100, 100))
+    img_array = np.array(image).flatten()
 
