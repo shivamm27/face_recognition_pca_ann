@@ -72,7 +72,6 @@ print("✅ Saved Label Encoder at results/label_encoder.pkl")
 # Save ANN model
 ann_model.save("results/face_ann_model.h5")
 print("✅ Saved ANN model at results/face_ann_model.h5")
-```
 
 
     # Display result
@@ -81,4 +80,4 @@ print("✅ Saved ANN model at results/face_ann_model.h5")
 
 elif uploaded_file is not None:
     st.warning("⚠️ Models not loaded. Please check your 'results/' folder for PCA, ANN, and label encoder files.")
-```
+
